@@ -19,7 +19,7 @@ provider "google" {
 resource "google_artifact_registry_repository" "bot-server" {
   description = "bot-server-repository"
   location = "asia-northeast1"
-  repository_id = "bot_server"
+  repository_id = "bot-server"
   format = "DOCKER"
 }
 
