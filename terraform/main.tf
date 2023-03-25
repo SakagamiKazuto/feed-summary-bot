@@ -3,6 +3,13 @@ variable "project_id" {
   default = "summary-bot-server"
 }
 
+terraform {
+  backend "gcs" {
+    bucket = "tfstate-summary-bot-server"
+    prefix = "terraform/state"
+  }
+}
+
 # Google Cloud providerを設定
 provider "google" {
   project = var.project_id
