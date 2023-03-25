@@ -27,14 +27,18 @@ func HandleBotEvents(c echo.Context) error {
 
 	switch eventsAPIEvent.Type {
 	case slackevents.CallbackEvent:
-		switch innerEvent := eventsAPIEvent.InnerEvent.(type) {
-		case *slackevents.AppMentionEvent:
-			handleAppMention(innerEvent)
+		switch eventsAPIEvent.Type {
+		case slackevents.CallbackEvent:
+			innerEvent := eventsAPIEvent.InnerEvent
+			switch innerEventData := innerEvent.Data.(type) {
+			case *slackevents.AppMentionEvent:
+				handleAppMention(innerEventData)
+			default:
+				log.Printf("[INFO] unsupported inner event: %+v\n", innerEvent.Data)
+			}
 		default:
-			log.Printf("[INFO] unsupported inner event: %+v\n", eventsAPIEvent.InnerEvent)
+			log.Printf("[INFO] unsupported event: %+v\n", eventsAPIEvent.Type)
 		}
-	default:
-		log.Printf("[INFO] unsupported event: %+v\n", eventsAPIEvent.Type)
 	}
 
 	return c.String(http.StatusOK, "")
