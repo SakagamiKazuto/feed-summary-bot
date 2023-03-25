@@ -21,7 +21,13 @@ jobs:
           project_id: ${{ env.PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
+      - name: Build and tag the Docker image
+        run: |
+          docker build -t ${{env.ARTIFACT_REGISTRY}}/${{env.PROJECT_ID}}/${{env.REPOSITORY_NAME}}:${{env.IMAGE_TAG}} .
 
+      - name: Push the Docker image to Artifact Registry
+        run: |
+          docker push ${{env.ARTIFACT_REGISTRY}}/${{env.PROJECT_ID}}/${{env.REPOSITORY_NAME}}:${{env.IMAGE_TAG}}
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
@@ -35,21 +41,3 @@ jobs:
         run: |
           terraform plan -out=tfplan
           terraform apply -auto-approve tfplan
-
-      - name: Build and tag the Docker image
-        run: |
-          docker build -t ${{env.ARTIFACT_REGISTRY}}/${{env.PROJECT_ID}}/${{env.REPOSITORY_NAME}}/${{env.IMAGE_TAG}} .
-          docker tag ${{env.ARTIFACT_REGISTRY}}/${{env.PROJECT_ID}}/${{env.REPOSITORY_NAME}}/${{env.IMAGE_TAG}} ${{env.ARTIFACT_REGISTRY}}/${{env.PROJECT_ID}}/${{env.REPOSITORY_NAME}}:${{env.IMAGE_TAG}}
-
-      - name: Push the Docker image to Artifact Registry
-        run: |
-          docker push ${{env.ARTIFACT_REGISTRY}}/${{env.PROJECT_ID}}/${{env.REPOSITORY_NAME}}/${{env.IMAGE_TAG}}
-          docker push ${{env.ARTIFACT_REGISTRY}}/${{env.PROJECT_ID}}/${{env.REPOSITORY_NAME}}:${{env.IMAGE_TAG}}
-
-      - name: Deploy to Cloud Run
-        uses: google-github-actions/deploy-cloudrun@main
-        with:
-          service: ${{ env.IMAGE_NAME }}
-          image: gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          region: ${{ env.REGION }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
