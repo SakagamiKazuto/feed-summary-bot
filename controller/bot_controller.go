@@ -3,19 +3,19 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/labstack/echo/v4"
 	"log"
 	"net/http"
 	"os"
 	"strings"
 
-	"github.com/labstack/echo"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 )
 
 var api = slack.New(os.Getenv("SLACK_APP_TOKEN"))
 
-func handleEvents(c echo.Context) error {
+func HandleBotEvents(c echo.Context) error {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(c.Request().Body)
 	body := buf.String()
