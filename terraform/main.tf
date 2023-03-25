@@ -19,7 +19,7 @@ provider "google" {
 resource "google_artifact_registry_repository" "bot-server" {
   description = "bot-server-repository"
   location = "asia-northeast1"
-  repository_id = "bot-server"
+  repository_id = "bot_server"
   format = "DOCKER"
 }
 
@@ -32,7 +32,8 @@ resource "google_cloud_run_service" "bot-server" {
   template {
     spec {
       containers {
-        image = "${google_artifact_registry_repository.bot-server.id}:${git_revision}"
+        //image = "${google_artifact_registry_repository.bot-server.id}:latest"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
       }
     }
   }

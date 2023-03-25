@@ -1,10 +1,10 @@
 resource "google_service_account" "github-actions" {
-  account_id   = "github-actions"
+  account_id   = "github_actions"
   display_name = "GitHub Actions Service Account"
 }
 
 resource "google_project_iam_custom_role" "github-actions" {
-  role_id     = "github-actions"
+  role_id     = "github_actions"
   title       = "GitHub Actions Custom Role"
   description = "Custom role for GitHub Actions"
 
