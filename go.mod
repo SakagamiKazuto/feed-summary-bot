@@ -1,0 +1,1 @@
+module feed-summary-bot
