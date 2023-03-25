@@ -12,7 +12,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Login to GCR
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@v0
+        uses: google-github-actions/github-actions/setup-gcloud@v0
         with:
           project_id: ${{ env.PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
@@ -23,7 +23,7 @@ jobs:
           PROJECT_ID: ${{ env.PROJECT_ID }}
           IMAGE_NAME: ${{ env.IMAGE_NAME }}
       - name: Deploy to Cloud Run
-        uses: GoogleCloudPlatform/github-actions/deploy-cloudrun@main
+        uses: google-github-actions/github-actions/deploy-cloudrun@main
         with:
           service: ${{ env.IMAGE_NAME }}
           image: gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
