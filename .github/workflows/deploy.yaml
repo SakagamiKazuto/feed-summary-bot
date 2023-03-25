@@ -1,0 +1,31 @@
+name: Deploy to GCP Cloud Run
+on:
+  workflow_dispatch:
+env:
+  PROJECT_ID: <your_project_id>
+  IMAGE_NAME: <your_image_name>
+  REGION: asia-northeast1
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Login to GCR
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+      - name: Build and push Docker image
+        run: |
+          ./build-and-push.sh
+        env:
+          PROJECT_ID: ${{ env.PROJECT_ID }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+      - name: Deploy to Cloud Run
+        uses: GoogleCloudPlatform/github-actions/deploy-cloudrun@main
+        with:
+          service: ${{ env.IMAGE_NAME }}
+          image: gcr.io/${{ env.PROJECT_ID }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          region: ${{ env.REGION }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
