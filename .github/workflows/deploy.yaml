@@ -5,6 +5,9 @@ env:
   PROJECT_ID: summary-bot-server
   IMAGE_NAME: bot-server
   REGION: asia-northeast1
+  REGISTRY_LOCATION: asia-northeast1
+  ARTIFACT_REGISTRY: asia-northeast1-docker.pkg.dev
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -16,12 +19,16 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
-      - name: Build and push Docker image
+      - name: Build and tag the Docker image
         run: |
-          ./build-and-push.sh
-        env:
-          PROJECT_ID: ${{ env.PROJECT_ID }}
-          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          docker build -t ${env.ARTIFACT_REGISTRY}/${env.PROJECT_ID}/${env.REPOSITORY_NAME}/${env.IMAGE_TAG} .
+          docker tag ${env.ARTIFACT_REGISTRY}/${env.PROJECT_ID}/${env.REPOSITORY_NAME}/${env.IMAGE_TAG} ${env.ARTIFACT_REGISTRY}/${env.PROJECT_ID}/${env.REPOSITORY_NAME}:${env.IMAGE_TAG}
+
+      - name: Push the Docker image to Artifact Registry
+        run: |
+          docker push ${env.ARTIFACT_REGISTRY}/${env.PROJECT_ID}/${env.REPOSITORY_NAME}/${env.IMAGE_TAG}
+          docker push ${env.ARTIFACT_REGISTRY}/${env.PROJECT_ID}/${env.REPOSITORY_NAME}:${env.IMAGE_TAG}
+
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@main
         with:
