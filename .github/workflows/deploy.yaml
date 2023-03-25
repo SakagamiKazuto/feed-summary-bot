@@ -2,8 +2,8 @@ name: Deploy to GCP Cloud Run
 on:
   workflow_dispatch:
 env:
-  PROJECT_ID: <your_project_id>
-  IMAGE_NAME: <your_image_name>
+  PROJECT_ID: bot-server
+  IMAGE_NAME: bot-server
   REGION: asia-northeast1
 jobs:
   deploy:
