@@ -20,6 +20,7 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_defailt_credentials: true
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
