@@ -22,7 +22,40 @@ resource "google_project_iam_custom_role" "github-actions" {
     "storage.objects.get",
     "storage.objects.list",
     "storage.objects.update",
-    "roles/run.admin",
+    # Cloud Run
+    "run.services.get",
+    "run.services.create",
+    "run.services.list",
+    "run.services.delete",
+    "run.services.update",
+    "run.services.getIamPolicy",
+    "run.services.setIamPolicy",
+
+    # Cloud SQL
+    "cloudsql.instances.addServerCa",
+    "cloudsql.instances.connect",
+    "cloudsql.instances.export",
+    "cloudsql.instances.failover",
+    "cloudsql.instances.get",
+    "cloudsql.instances.list",
+    "cloudsql.instances.listServerCas",
+    "cloudsql.instances.restart",
+    "cloudsql.instances.rotateServerCa",
+    "cloudsql.instances.truncateLog",
+    "cloudsql.instances.update",
+    "cloudsql.instances.create",
+    "cloudsql.instances.startReplica",
+    "cloudsql.databases.create",
+    "cloudsql.databases.get",
+    "cloudsql.databases.list",
+    "cloudsql.databases.update",
+    "cloudsql.backupRuns.create",
+    "cloudsql.backupRuns.get",
+    "cloudsql.backupRuns.list",
+    "cloudsql.sslCerts.get",
+    "cloudsql.sslCerts.list",
+    "cloudsql.users.list",
+
   ]
 }
 
