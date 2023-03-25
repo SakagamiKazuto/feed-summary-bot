@@ -22,7 +22,7 @@ resource "google_project_iam_custom_role" "github-actions" {
     "storage.objects.get",
     "storage.objects.list",
     "storage.objects.update",
-    "run.admin",
+    "roles/run.admin",
   ]
 }
 
