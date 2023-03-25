@@ -20,8 +20,8 @@ resource "google_project_iam_custom_role" "github-actions" {
     "cloudbuild.triggers.update",
     "storage.buckets.get",
     "storage.buckets.list",
-    "storage.objects.*",
-    "run.*",
+    "storage.admin",
+    "run.admin",
   ]
 }
 
