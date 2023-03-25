@@ -30,6 +30,7 @@ jobs:
         working-directory: ./terraform
         run: terraform init
       - name: Terraform Apply
+        working-directory: ./terraform
         id: apply
         run: |
           terraform plan -out=tfplan
