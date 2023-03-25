@@ -6,6 +6,7 @@ env:
   IMAGE_NAME: bot-server
   IMAGE_TAG: latest
   REGION: asia-northeast1
+  REPOSITORY_NAME: bot-server
   REGISTRY_LOCATION: asia-northeast1
   ARTIFACT_REGISTRY: asia-northeast1-docker.pkg.dev
 
