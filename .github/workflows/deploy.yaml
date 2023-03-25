@@ -4,6 +4,7 @@ on:
 env:
   PROJECT_ID: summary-bot-server
   IMAGE_NAME: bot-server
+  IMAGE_TAG: latest
   REGION: asia-northeast1
   REGISTRY_LOCATION: asia-northeast1
   ARTIFACT_REGISTRY: asia-northeast1-docker.pkg.dev
@@ -19,6 +20,19 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.1.0
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform Apply
+        id: apply
+        run: |
+          terraform plan -out=tfplan -var "project_id=${{ env.PROJECT_ID }}" -var "region=${{ env.REGION }}" -var "repository_name=${{ env.REPOSITORY_NAME }}" -var "image_tag=${{ env.IMAGE_TAG }}" -var "registry_location=${{ env.REGISTRY_LOCATION }}" -var "artifact_registry=${{ env.ARTIFACT_REGISTRY }}"
+          terraform apply -auto-approve tfplan
+
       - name: Build and tag the Docker image
         run: |
           docker build -t ${env.ARTIFACT_REGISTRY}/${env.PROJECT_ID}/${env.REPOSITORY_NAME}/${env.IMAGE_TAG} .
