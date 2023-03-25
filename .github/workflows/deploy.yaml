@@ -32,7 +32,7 @@ jobs:
       - name: Terraform Apply
         id: apply
         run: |
-          terraform plan -out=tfplan"
+          terraform plan -out=tfplan
           terraform apply -auto-approve tfplan
 
       - name: Build and tag the Docker image
