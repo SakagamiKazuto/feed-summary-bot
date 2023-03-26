@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"feed-summary-bot/logger"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -48,11 +48,13 @@ func HandleBotEvents(c echo.Context) error {
 
 	cmd, err := slack.SlashCommandParse(c.Request())
 	if err != nil {
+		logger.LOG.Error("SlashParse failed", zap.Error(err))
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid slash command"})
 	}
 
 	eventsAPIEvent, err := slackevents.ParseEvent(json.RawMessage(body), slackevents.OptionNoVerifyToken())
 	if err != nil {
+		logger.LOG.Error("ParseEvent error", zap.Error(err))
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
@@ -65,10 +67,10 @@ func HandleBotEvents(c echo.Context) error {
 			case *slackevents.AppMentionEvent:
 				handleAppMention(innerEventData, cmd)
 			default:
-				log.Printf("[INFO] unsupported inner event: %+v\n", innerEvent.Data)
+				logger.LOG.Error(fmt.Sprintf("[INFO] unsupported inner event: %+v\n", innerEvent.Data))
 			}
 		default:
-			log.Printf("[INFO] unsupported event: %+v\n", eventsAPIEvent.Type)
+			logger.LOG.Error(fmt.Sprintf("[INFO] unsupported event"))
 		}
 	}
 
@@ -81,6 +83,7 @@ func handleAppMention(event *slackevents.AppMentionEvent, cmd slack.SlashCommand
 	command := strings.Split(event.Text, " ")
 
 	if len(command) < 3 {
+		logger.LOG.Error("command < 3")
 		api.PostMessage(event.Channel, slack.MsgOptionText("Error: Invalid command format.", false))
 		return
 	}
@@ -94,6 +97,7 @@ func handleAppMention(event *slackevents.AppMentionEvent, cmd slack.SlashCommand
 		response := "Feed URL '" + url + "' has been saved."
 		api.PostMessage(event.Channel, slack.MsgOptionText(response, false))
 	default:
+		logger.LOG.Error("invalid command format")
 		api.PostMessage(event.Channel, slack.MsgOptionText("Error: Invalid command format.", false))
 	}
 }
