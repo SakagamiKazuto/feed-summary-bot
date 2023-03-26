@@ -52,6 +52,15 @@ resource "google_cloud_run_service" "bot-server" {
               }
             }
         }
+        env {
+          name = "OPENAI_API_KEY"
+          value_from {
+            secret_key_ref {
+              name = "OPENAI_API_KEY"
+              key  = "latest"
+            }
+          }
+        }
       }
     }
   }
