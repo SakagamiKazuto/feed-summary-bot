@@ -28,7 +28,12 @@ resource "google_cloud_run_service" "bot-server" {
   name = "bot-server"
   location = "asia-northeast1"
 
-  # Dockerイメージを指定
+  //  これがないとsecret managerへのアクセスを行うことができない。
+  metadata {
+    annotations = {
+      "run.googleapis.com/launch-stage" = "BETA"
+    }
+  }
   template {
     spec {
       containers {
@@ -42,21 +47,21 @@ resource "google_cloud_run_service" "bot-server" {
             }
           }
         }
-          env {
-            name = "SLACK_SIGNING_TOKEN"
-            value_from {
-              secret_key_ref {
-                name = "SLACK_SIGNING_TOKEN"
-                key  = "latest"
-              }
+        env {
+          name = "SLACK_SIGNING_TOKEN"
+          value_from {
+            secret_key_ref {
+              name = "SLACK_SIGNING_TOKEN"
+              key = "latest"
             }
+          }
         }
         env {
           name = "OPENAI_API_KEY"
           value_from {
             secret_key_ref {
               name = "OPENAI_API_KEY"
-              key  = "latest"
+              key = "latest"
             }
           }
         }
