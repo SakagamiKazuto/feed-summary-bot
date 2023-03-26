@@ -3,7 +3,9 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"feed-summary-bot/logger"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"os"
@@ -17,16 +19,19 @@ func verifyRequest(c echo.Context, body string) error {
 	signingSecret := os.Getenv("SLACK_SIGNING_SECRET") // Slackアプリの設定ページから取得したSigning Secretを設定してください
 	sv, err := slack.NewSecretsVerifier(c.Request().Header, signingSecret)
 	if err != nil {
+		logger.LOG.Error("NewSecretsVerifier error", zap.Error(err))
 		return c.String(http.StatusBadRequest, "Invalid request")
 	}
 
 	_, err = sv.Write([]byte(body))
 	if err != nil {
+		logger.LOG.Error("sv.Write error", zap.Error(err))
 		return c.String(http.StatusBadRequest, "Invalid request")
 	}
 
 	err = sv.Ensure()
 	if err != nil {
+		logger.LOG.Error("sv.Ensure error", zap.Error(err))
 		return c.String(http.StatusUnauthorized, "Unauthorized")
 	}
 	return nil
