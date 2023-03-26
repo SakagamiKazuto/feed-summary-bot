@@ -1,21 +1,22 @@
-# ベースイメージを指定
-FROM golang:1.19 as build
+FROM golang:1.19-alpine as builder
 
-# 必要なパッケージをインストール
-RUN apt-get update && apt-get -y install git
+ENV ROOT=/go/src/app
+WORKDIR ${ROOT}
 
-WORKDIR /app
-
-COPY . .
+RUN apk update && apk add --no-cache ca-certificates && update-ca-certificates
+RUN apk add git
+COPY go.mod go.sum ./
 RUN go mod download
-RUN go mod tidy
-RUN go build -o app .
 
-# 軽量化のため、最終的なイメージを別のベースイメージにする
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates
-WORKDIR /root/
-COPY --from=build /app/app .
+COPY . ${ROOT}
+RUN CGO_ENABLED=0 GOOS=linux go build -o $ROOT/bin
 
-# コンテナが起動した際に実行されるコマンドを指定
-CMD ["./app"]
+FROM scratch as prod
+
+ENV ROOT=/go/src/app
+WORKDIR ${ROOT}
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder ${ROOT}/bin ${ROOT}
+
+EXPOSE 8080
+CMD ["/go/src/app/bin"]
