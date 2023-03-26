@@ -10,6 +10,8 @@ WORKDIR /app
 # go.modとgo.sumをコピーして依存関係をダウンロード
 COPY go.mod go.sum ./
 RUN go mod download
+RUN go mod tidy
+
 
 # ソースコードをコピー
 COPY . .
