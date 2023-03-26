@@ -3,8 +3,10 @@ package controller
 import (
 	"feed-summary-bot/domain/gateway/openai"
 	"fmt"
+	"github.com/mmcdole/gofeed"
 	"github.com/slack-go/slack"
 	"os"
+	"time"
 )
 
 func postSummaryToSlack(summary, slackChannelID, articleURL string) error {
@@ -19,6 +21,24 @@ func postSummaryToSlack(summary, slackChannelID, articleURL string) error {
 		return err
 	}
 	return nil
+}
+
+func getRecentFeedEntries(feedURL string) ([]*gofeed.Item, error) {
+	fp := gofeed.NewParser()
+	feed, err := fp.ParseURL(feedURL)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedSince := time.Now().Add(-6 * time.Hour)
+	var recentEntries []*gofeed.Item
+	for _, item := range feed.Items {
+		published, _ := time.Parse(time.RFC1123Z, item.Published)
+		if published.After(updatedSince) {
+			recentEntries = append(recentEntries, item)
+		}
+	}
+	return recentEntries, nil
 }
 
 func getArticleSummary(articleURL string) (string, error) {
