@@ -13,14 +13,36 @@ import (
 	"github.com/slack-go/slack/slackevents"
 )
 
-var api = slack.New(os.Getenv("SLACK_APP_TOKEN"))
+func verifyRequest(c echo.Context, body string) error {
+	signingSecret := os.Getenv("SLACK_SIGNING_SECRET") // Slackアプリの設定ページから取得したSigning Secretを設定してください
+	sv, err := slack.NewSecretsVerifier(c.Request().Header, signingSecret)
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Invalid request")
+	}
+
+	_, err = sv.Write([]byte(body))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Invalid request")
+	}
+
+	err = sv.Ensure()
+	if err != nil {
+		return c.String(http.StatusUnauthorized, "Unauthorized")
+	}
+	return nil
+}
 
 func HandleBotEvents(c echo.Context) error {
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(c.Request().Body)
 	body := buf.String()
 
-	eventsAPIEvent, err := slackevents.ParseEvent(json.RawMessage(body), slackevents.OptionVerifyToken(&slackevents.TokenComparator{VerificationToken: os.Getenv("SLACK_VERIFICATION_TOKEN")}))
+	err := verifyRequest(c, body)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	eventsAPIEvent, err := slackevents.ParseEvent(json.RawMessage(body), slackevents.OptionNoVerifyToken())
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -45,6 +67,8 @@ func HandleBotEvents(c echo.Context) error {
 }
 
 func handleAppMention(event *slackevents.AppMentionEvent) {
+	api := slack.New(os.Getenv("SLACK_APP_TOKEN"))
+
 	command := strings.Split(event.Text, " ")
 
 	if len(command) < 3 {

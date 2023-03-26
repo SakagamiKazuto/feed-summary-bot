@@ -34,6 +34,24 @@ resource "google_cloud_run_service" "bot-server" {
       containers {
         //image = "${google_artifact_registry_repository.bot-server.id}:latest"
         image = "us-docker.pkg.dev/cloudrun/container/hello"
+        env {
+          name = "SLACK_APP_TOKEN"
+          value_from {
+            secret_key_ref {
+              name = "SLACK_APP_TOKEN"
+              key = "latest"
+            }
+          }
+        }
+          env {
+            name = "SLACK_SIGNING_TOKEN"
+            value_from {
+              secret_key_ref {
+                name = "SLACK_SIGNING_TOKEN"
+                key  = "latest"
+              }
+            }
+        }
       }
     }
   }
