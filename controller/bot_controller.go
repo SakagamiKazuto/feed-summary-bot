@@ -54,7 +54,7 @@ func HandleBotEvents(c echo.Context) error {
 
 	eventsAPIEvent, err := slackevents.ParseEvent(json.RawMessage(body), slackevents.OptionNoVerifyToken())
 	if err != nil {
-		logger.LOG.Error("ParseEvent error", zap.Error(err))
+		logger.LOG.Error("ParseEvent error", zap.Error(err), zap.String("body", body))
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
