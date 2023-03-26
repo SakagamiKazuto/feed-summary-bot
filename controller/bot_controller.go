@@ -83,12 +83,9 @@ func handleAppMention(event *slackevents.AppMentionEvent, cmd slack.SlashCommand
 	action, url := command[1], command[2]
 
 	switch action {
-	case "init":
-		// ここにwebhookURLをサーバーに保存する処理を追加
-		response := "Webhook URL '" + url + "' has been saved."
-		api.PostMessage(event.Channel, slack.MsgOptionText(response, false))
 	case "feed":
-		// ここに保存されたwebhookURLと紐づく形でfeedURLを保存する処理を追加
+		// ここに保存されたchannelIDとfeedURLを保存する処理を追加
+		// channelIDはcmdから、feedURLはurl変数から取得する。
 		response := "Feed URL '" + url + "' has been saved."
 		api.PostMessage(event.Channel, slack.MsgOptionText(response, false))
 	default:
