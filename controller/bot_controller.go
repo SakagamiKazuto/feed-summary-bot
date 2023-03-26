@@ -37,9 +37,18 @@ func HandleBotEvents(c echo.Context) error {
 	buf.ReadFrom(c.Request().Body)
 	body := buf.String()
 
-	err := verifyRequest(c, body)
-	if err != nil {
+	if err := verifyRequest(c, body); err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	form, err := c.FormParams()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid form data"})
+	}
+
+	cmd, err := slack.SlashCommandParse(c.Request())
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid slash command"})
 	}
 
 	eventsAPIEvent, err := slackevents.ParseEvent(json.RawMessage(body), slackevents.OptionNoVerifyToken())
@@ -54,7 +63,7 @@ func HandleBotEvents(c echo.Context) error {
 			innerEvent := eventsAPIEvent.InnerEvent
 			switch innerEventData := innerEvent.Data.(type) {
 			case *slackevents.AppMentionEvent:
-				handleAppMention(innerEventData)
+				handleAppMention(innerEventData, cmd)
 			default:
 				log.Printf("[INFO] unsupported inner event: %+v\n", innerEvent.Data)
 			}
@@ -66,7 +75,7 @@ func HandleBotEvents(c echo.Context) error {
 	return c.String(http.StatusOK, "")
 }
 
-func handleAppMention(event *slackevents.AppMentionEvent) {
+func handleAppMention(event *slackevents.AppMentionEvent, cmd slack.SlashCommand) {
 	api := slack.New(os.Getenv("SLACK_APP_TOKEN"))
 
 	command := strings.Split(event.Text, " ")
