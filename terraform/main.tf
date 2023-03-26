@@ -34,6 +34,10 @@ resource "google_cloud_run_service" "bot-server" {
       "run.googleapis.com/launch-stage" = "BETA"
     }
   }
+  traffic {
+    percent = 100
+    latest_revision = true
+  }
   template {
     spec {
       containers {
@@ -48,10 +52,10 @@ resource "google_cloud_run_service" "bot-server" {
           }
         }
         env {
-          name = "SLACK_SIGNING_TOKEN"
+          name = "SLACK_SIGNING_SECRET"
           value_from {
             secret_key_ref {
-              name = "SLACK_SIGNING_TOKEN"
+              name = "SLACK_SIGNING_SECRET"
               key = "latest"
             }
           }
@@ -70,6 +74,14 @@ resource "google_cloud_run_service" "bot-server" {
   }
   depends_on = [
     google_artifact_registry_repository.bot-server
+  ]
+}
+
+resource google_secret_manager_secret_iam_binding run_invoker {
+  secret_id = "sample-secret"
+  role      = "roles/secretmanager.secretAccessor"
+  members = [
+    "serviceAccount:${google_service_account.run_invoker.email}"
   ]
 }
 
