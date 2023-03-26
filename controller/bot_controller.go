@@ -48,7 +48,7 @@ func HandleBotEvents(c echo.Context) error {
 	}
 	err = handleAppMention(cmd)
 	if err != nil {
-		logger.LOG.Error("handleAppMention failed", zap.Error(err))
+		logger.LOG.Error("handleAppMention failed", zap.Error(err), zap.Any("command", cmd))
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid slash command"})
 	}
 
@@ -63,10 +63,10 @@ func handleAppMention(cmd slack.SlashCommand) (err error) {
 		// ここに保存されたchannelIDとfeedURLを保存する処理を追加
 		// channelIDはcmdから、feedURLはurl変数から取得する。
 		response := "Feed URL '" + cmd.Text + "' has been saved."
-		_, _, err = api.PostMessage(cmd.ChannelID, slack.MsgOptionText(response, false))
+		_, _, err = api.PostMessage(cmd.ChannelName, slack.MsgOptionText(response, false))
 	default:
 		logger.LOG.Error("invalid command format")
-		_, _, err = api.PostMessage(cmd.ChannelID, slack.MsgOptionText("Error: Invalid command format.", false))
+		_, _, err = api.PostMessage(cmd.ChannelName, slack.MsgOptionText("Error: Invalid command format.", false))
 	}
 	return
 }
