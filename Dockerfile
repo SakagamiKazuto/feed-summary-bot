@@ -1,5 +1,5 @@
 # ベースイメージを指定
-FROM golang:1.16 as build
+FROM golang:1.19 as build
 
 # 必要なパッケージをインストール
 RUN apt-get update && apt-get -y install git
