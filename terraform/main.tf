@@ -27,6 +27,7 @@ resource "google_artifact_registry_repository" "bot-server" {
 resource "google_cloud_run_service" "bot-server" {
   name = "bot-server"
   location = "asia-northeast1"
+  autogenerate_revision_name = true
 
   //  これがないとsecret managerへのアクセスを行うことができない。
   metadata {
