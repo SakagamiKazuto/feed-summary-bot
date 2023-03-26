@@ -41,11 +41,6 @@ func HandleBotEvents(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	form, err := c.FormParams()
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid form data"})
-	}
-
 	cmd, err := slack.SlashCommandParse(c.Request())
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid slash command"})
