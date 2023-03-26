@@ -1,3 +1,8 @@
+resource "google_service_account" "bot-server" {
+  account_id   = "bot-server"
+  display_name = "Bot Server Service Account"
+}
+
 resource "google_service_account" "github-actions" {
   account_id   = "github-actions"
   display_name = "GitHub Actions Service Account"

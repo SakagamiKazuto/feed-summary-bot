@@ -70,6 +70,7 @@ resource "google_cloud_run_service" "bot-server" {
           }
         }
       }
+      service_account_name = google_service_account.bot-server.email
     }
   }
   depends_on = [
@@ -77,12 +78,14 @@ resource "google_cloud_run_service" "bot-server" {
   ]
 }
 
-resource google_secret_manager_secret_iam_binding run_invoker {
-  secret_id = "sample-secret"
-  role      = "roles/secretmanager.secretAccessor"
-  members = [
-    "serviceAccount:${google_service_account.run_invoker.email}"
-  ]
+resource "google_project_iam_member" "bot-server-cloudsql" {
+  role = "roles/cloudsql.client"
+  member = "serviceAccount:${google_service_account.bot-server.email}"
+}
+
+resource "google_project_iam_member" "bot-server-secretmanager" {
+  role = "roles/secretmanager.secretAccessor"
+  member = "serviceAccount:${google_service_account.bot-server.email}"
 }
 
 resource "google_cloud_run_service_iam_policy" "bot-server" {
