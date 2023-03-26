@@ -79,11 +79,13 @@ resource "google_cloud_run_service" "bot-server" {
 }
 
 resource "google_project_iam_member" "bot-server-cloudsql" {
+  project = var.project_id
   role = "roles/cloudsql.client"
   member = "serviceAccount:${google_service_account.bot-server.email}"
 }
 
 resource "google_project_iam_member" "bot-server-secretmanager" {
+  project = var.project_id
   role = "roles/secretmanager.secretAccessor"
   member = "serviceAccount:${google_service_account.bot-server.email}"
 }
