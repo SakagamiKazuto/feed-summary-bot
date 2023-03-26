@@ -37,7 +37,7 @@ resource "google_cloud_run_service" "bot-server" {
   template {
     spec {
       containers {
-        image = "${google_artifact_registry_repository.bot-server.id}:latest"
+        image = "asia-northeast1-docker.pkg.dev/summary-bot-server/bot-server/bot-server:latest"
         env {
           name = "SLACK_APP_TOKEN"
           value_from {
